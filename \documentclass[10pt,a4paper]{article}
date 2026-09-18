@@ -1,0 +1,369 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[top=0.85in, left=1.5in, right=1.5in, bottom=1.2in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{\textbf{Quantum Random Walk Sieving for the 4-Sieve}}
+\author{
+    MohamadAli Khajeian\\[0.5em]
+    \normalsize School of Engineering Sciences, College of Engineering, University of Tehran\\
+    \normalsize \texttt{khajeian@ut.ac.ir}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present an adaptation of the quantum random walk (QRW) 2-sieve of Chailloux and Loyer \cite{CL21} to serve as the inner two-list subroutine inside the quantum 4-sieve framework of Chailloux and Loyer \cite{CL23}. The adaptation preserves the Johnson graph, the second-level random product code, and the quantum data structure of the original algorithm, and modifies only the marked condition and the probability that a random cross-pair is a solution. We provide the complete algorithms, discuss the modifications required, and give a full complexity analysis for the running time, QRAM, quantum memory, and classical memory. We optimise the QRW parameters for the first two inner calls, obtaining \(T_{12} = T_{34} = 2^{0.139d+o(d)}\), and also analyse the third inner call in detail, showing that it is fundamentally inefficient because the solution probability is exponentially small.
+\end{abstract}
+
+\section{Introduction}
+
+The Shortest Vector Problem (SVP) is at the foundation of lattice-based cryptography. The best known heuristic quantum algorithm for SVP runs in time \(2^{0.2570d+o(d)}\) \cite{CL21}, obtained by replacing Grover's algorithm inside the 2-sieve by a quantum random walk with an additional layer of locality-sensitive filtering. In parallel, \(k\)-sieve algorithms have been developed to reduce memory requirements at the cost of increased running time \cite{CL23}. In particular, the quantum 4-sieve of \cite{CL23} uses nested Grover searches and achieves a time-memory trade-off with quantum-accessible classical memory of size \(2^{0.1724d}\) to \(2^{0.1813d}\).
+
+In this work, we investigate whether the QRW 2-sieve of \cite{CL21} can be used as the inner two-list subroutine inside the 4-sieve framework of \cite{CL23}, replacing the Grover-based inner 2-sieve. This requires adapting the QRW 2-sieve to handle two distinct lists rather than one, an arbitrary configuration threshold \(C'_{12}(\alpha)\) rather than the fixed angle \(\theta_\alpha^*\), and possibly non-unit vectors in the second-level call.
+
+We show that the core QRW structure remains unchanged: the Johnson graph, the second random product code \(\mathcal{C}_2\), the quantum data structure for the lists \(J^v(\vec{t})\), and the MNRS framework are all preserved. Only the marked condition and the probability \(p_{\mathrm{sol}}\) that a random cross-pair is a solution must be adjusted. We give the complete algorithms, discuss the modifications, and provide the full complexity analysis. We also analyse the third inner call in detail, showing that the QRW is fundamentally inefficient there because \(p_{\mathrm{sol}}\) is exponentially small.
+
+\section{Preliminaries and Notation}
+
+We use the notation of \cite{CL21,CL23}. Let \(d\) be the lattice dimension and define the fundamental list-size parameter
+\begin{equation}
+N \coloneqq \left(\sqrt{4/3}\right)^d = 2^{0.2075d+o(d)}.
+\end{equation}
+This quantity \(N\) is exponential in \(d\) and serves as the reference scale for all exponents in the algorithm. A list of size \(N^{a}\) contains \(2^{a\cdot 0.2075d + o(d)}\) elements; throughout the paper we write \(N^{a+o(1)}\) to denote such a list, absorbing subexponential factors into the \(o(1)\).
+
+For an angle \(\alpha \in [0,\pi/2]\), the volume ratio of a spherical cap of angle \(\alpha\) is
+\begin{equation}
+\mathcal{V}_d(\alpha) \coloneqq \mathrm{poly}(d)\sin^d(\alpha),
+\end{equation}
+which represents the fraction of the unit sphere covered by a cap of angular radius \(\alpha\). For two angles \(\alpha\) and \(\theta\), the volume ratio of a wedge formed by two caps of angle \(\alpha\) with centers separated by angle \(\theta\) is
+\begin{equation}
+\mathcal{W}_d(\alpha,\theta) \coloneqq \mathrm{poly}(d)\left(1-\frac{2\cos^2(\alpha)}{1+\cos(\theta)}\right)^{d/2},
+\end{equation}
+which is well-defined provided \(2\cos^2(\alpha) < 1+\cos(\theta)\), i.e., the two caps overlap.
+
+The critical angle between residual vectors that characterises reducibility of two border points is
+\begin{equation}
+\theta_\alpha^* \coloneqq 2\arcsin\!\left(\frac{1}{2\sin(\alpha)}\right),
+\end{equation}
+as established in \cite[Proposition~4]{CL21}. Two residual vectors \(\vec{y}_0,\vec{y}_1\) on the border of a filter of angle \(\alpha\) are reducible if and only if \(\theta(\vec{y}_0,\vec{y}_1) \le \theta_\alpha^*\).
+
+\paragraph{Outer 4-sieve parameters.} The outer 4-sieve uses a prefiltering angle \(\alpha_0 \in [\pi/3,\pi/2]\) and a configuration matrix \(C \in \mathbb{R}^{4\times 4}\). The reduction to residual vectors is denoted \(C'(\alpha_0)\), with entries \(C'_{ij}(\alpha_0)\) given by \cite[Lemma~1]{CL23}:
+\begin{equation}
+C'_{ij}(\alpha_0) = \frac{1}{\sin^2(\alpha_0)}\left(C_{ij} + \frac{\cos^2(\alpha_0)}{3}\right) \quad (i \neq j).
+\end{equation}
+The effective threshold for the second-level 2-sieve that builds \(L_{1234}\) is
+\begin{equation}
+C_{\mathrm{eff}} \coloneqq \frac{\sin^2(\alpha_0)}{2R^2} - 1, \qquad R^2 \coloneqq 2 + 2C_{12},
+\end{equation}
+as given in \cite[Lemma~6]{CL23}.
+
+\paragraph{QRW parameters.} The adapted QRW 2-sieve uses four free parameters \(c, c_1, c_2, \rho\) satisfying \(0 \le c_2 \le c_1 \le c \le 1\) and \(0 \le \rho \le \rho_0\). From these, the following derived quantities are defined. The angle \(\alpha\) (not to be confused with \(\alpha_0\)) satisfies \(\mathcal{V}_d(\alpha) = N^{-(1-c)}\). The angle \(\beta\) of the second random product code satisfies \(\mathcal{V}_d(\beta) = N^{c_2-c_1}\). The target angle is \(\theta' \coloneqq \arccos(C')\). The collision parameter \(\rho_0\) is defined by \(N^{\rho_0} \coloneqq \mathcal{V}_d(\beta)/\mathcal{W}_d(\beta,\theta')\). The solution probability is
+\begin{equation}
+p_{\mathrm{sol}} \coloneqq \frac{1}{2}\bigl(1-(C')^2\bigr)^{d/2},
+\label{eq:psol}
+\end{equation}
+where the factor \(1/2\) accounts for the bipartite nature of the problem. The expected number of solutions per filter is \(N^\zeta \coloneqq N^{2c}\cdot p_{\mathrm{sol}}\).
+
+The QRW costs are the setup cost \(\mathcal{S} \coloneqq N^{c_1+\rho}\), the update cost \(\mathcal{U} \coloneqq N^{\max\{\rho,(\rho+c_2)/2\}}\), and the checking cost \(\mathcal{C} \coloneqq 1\). The spectral gap of the Johnson graph is \(\delta \coloneqq N^{-c_1}\). The fraction of marked vertices is
+\begin{equation}
+\epsilon \coloneqq N^{2c_1}\cdot p_{\mathrm{sol}}\cdot N^{\rho-\rho_0}.
+\end{equation}
+
+\section{Modified QRW 2-Sieve}
+
+\subsection{Preserved components}
+
+The adaptation preserves the following components of the QRW 2-sieve of \cite{CL21} without structural modification. The Johnson graph \(J(N, N^{c_1})\) on the combined list, with spectral gap \(\delta = N^{-c_1}\) and the MNRS quantum walk framework, is retained exactly. The second random product code \(\mathcal{C}_2\) with angle \(\beta\) satisfying \(\mathcal{V}_d(\beta) = N^{c_2-c_1}\) and size \(|\mathcal{C}_2| = N^{\rho+c_1-c_2}\) is constructed identically. The quantum data structure for the lists \(J^v(\vec{t}) = f_\beta(\vec{t})\cap L^v\), supporting insertions and deletions in quantum superposition, is used as in the original algorithm. The setup, update, and check cost formulas are formally unchanged.
+
+\subsection{Required modifications}
+
+Three modifications are required to adapt the QRW 2-sieve to the bipartite setting. First, we form the combined list \(L = R_A \cup R_B\) and tag each element by a bit indicating its origin. The Johnson graph is built on \(L\) with \(|L| = 2N_R\). This tagging does not affect the graph structure. Second, the marked condition is redefined: a vertex \(v\) is marked if there exist \(\vec{t} \in \mathcal{C}_2\) and distinct \(\vec{y}_i,\vec{y}_j \in \tilde{J}^v(\vec{t})\) such that \(\vec{y}_i\) and \(\vec{y}_j\) have different tags and \(\langle \vec{y}_i|\vec{y}_j\rangle \le C'\). Third, the solution probability acquires the factor \(1/2\) as given in Equation~\eqref{eq:psol}.
+
+\subsection{Adapted algorithm}
+
+\begin{algorithm}[H]
+\caption{Adapted QRW 2-Sieve for bipartite configuration problems}
+\label{alg:qrw}
+\begin{algorithmic}[1]
+\Require two residual lists \(R_A, R_B\) of size \(N_R\) each; threshold \(C'\); QRW parameters \(c, c_1, c_2, \rho\).
+\Ensure all pairs \((\vec{y}_a, \vec{y}_b) \in R_A \times R_B\) with \(\langle \vec{y}_a|\vec{y}_b\rangle \le C'\).
+\State Form \(L \coloneqq R_A \cup R_B\) with tags.
+\State Compute \(\theta' \coloneqq \arccos(C')\) and \(p_{\mathrm{sol}} \coloneqq \frac{1}{2}(1-C'^2)^{d/2}\).
+\State Sample random product code \(\mathcal{C}_2\) with \(|\mathcal{C}_2| = N^{\rho+c_1-c_2}\) and angle \(\beta\) satisfying \(\mathcal{V}_d(\beta) = N^{c_2-c_1}\).
+\State Build Johnson graph \(J(N, N^{c_1})\) on \(L\).
+\For{each vertex \(v\)}
+    \State Compute \(J^v(\vec{t}) = f_\beta(\vec{t}) \cap L^v\) for each \(\vec{t}\in\mathcal{C}_2\).
+    \State Truncate to \(\tilde{J}^v(\vec{t})\) of size \(\le 2N^{c_2}\).
+    \State Set marked bit \(M(v)\) according to the marked condition above.
+\EndFor
+\While{total solutions found \(< N^\zeta/2\)}
+    \State Pick a new random product code \(\mathcal{C}_2\).
+    \While{solutions found with this \(\mathcal{C}_2\) \(< N^{\zeta+\rho-\rho_0}/2\)}
+        \State Run the MNRS quantum walk to find one marked vertex.
+    \EndWhile
+\EndWhile
+\State \Return all collected pairs.
+\end{algorithmic}
+\end{algorithm}
+
+\section{Main Algorithm: 4-Sieve with QRW Inner 2-Sieve}
+
+\begin{algorithm}[H]
+\caption{4-Sieve with QRW inner 2-sieve}
+\label{alg:main}
+\begin{algorithmic}[1]
+\Require list \(L\) of \(N' = N^{1+o(1)}\) lattice vectors of norm \(1\); reducing factor \(\gamma < 1\); prefiltering angle \(\alpha_0\); configuration \(C\in\mathbb{R}^{4\times 4}\); QRW parameters.
+\Ensure list \(L'\) of \(N'\) lattice vectors of norm \(\le \gamma\).
+\State \(L' \coloneqq \emptyset\).
+\While{\(|L'| \le N'\)}
+    \State Sample a 4-RPC \(\mathfrak{C}\) with codewords \((\mathbf{A}_1^j,\mathbf{A}_2^j,\mathbf{A}_3^j,\mathbf{A}_4^j)\) such that \(\sum_i \mathbf{A}_i^j = \vec{0}\) and \(\langle \mathbf{A}_i^j|\mathbf{A}_{i'}^j\rangle = -1/3\) for \(i\neq i'\).
+    \State Partition \(L\) into tuple-filters: for each \(\vec{x}\in L\), find its nearest codeword \(\mathbf{A}_i^j\), add \(\vec{x}\) to \(L_i^j\), compute residual \(\vec{y} = (\vec{x}-\cos\alpha_0\,\mathbf{A}_i^j)/\sin\alpha_0\), and add \(\vec{y}\) to \(R_i^j\).
+    \For{each tuple-filter \(j\)}
+        \State \(L_{12}^j \leftarrow \textsc{QRW-2-Sieve}(R_1^j, R_2^j, C'_{12}(\alpha_0))\).
+        \State \(L_{34}^j \leftarrow \textsc{QRW-2-Sieve}(R_3^j, R_4^j, C'_{34}(\alpha_0))\).
+        \State Normalise vectors in \(L_{12}^j\) and \(L_{34}^j\): \(\tilde{z}_{12} = z_{12}/\|z_{12}\|\), \(\tilde{z}_{34} = z_{34}/\|z_{34}\|\).
+        \State \(L_{1234}^j \leftarrow \textsc{QRW-2-Sieve}(\tilde{L}_{12}^j, \tilde{L}_{34}^j, C_{\mathrm{eff}})\).
+        \State \(L' \coloneqq L' \cup L_{1234}^j\).
+    \EndFor
+\EndWhile
+\State \Return \(L'\).
+\end{algorithmic}
+\end{algorithm}
+
+\section{Complexity Analysis}
+
+We now give the full complexity of the adapted QRW 2-sieve and of the outer 4-sieve. All calculations are performed in the QRAM model and expressed in the exponent notation \(N^{cd+o(1)}\), where \(N = 2^{0.2075d+o(d)}\).
+
+\subsection{Complexity of the adapted QRW 2-sieve}
+
+The setup cost, update cost, checking cost, and spectral gap are formally unchanged from the original algorithm:
+\begin{align}
+\mathcal{S} &= N^{c_1+\rho+o(1)}, \\
+\mathcal{U} &= N^{\max\{\rho,(\rho+c_2)/2\}+o(1)}, \\
+\mathcal{C} &= 1, \\
+\delta &= N^{-c_1}.
+\end{align}
+The fraction of marked vertices is modified by the factor \(1/2\) in \(p_{\mathrm{sol}}\):
+\begin{equation}
+\epsilon = \frac{1}{2}\,N^{2c_1}\bigl(1-(C')^2\bigr)^{d/2}\,N^{\rho-\rho_0},
+\end{equation}
+where \(\rho_0\) satisfies \(N^{\rho_0} = \mathcal{V}_d(\beta)/\mathcal{W}_d(\beta,\theta')\). The expected number of solutions per filter is
+\begin{equation}
+N^\zeta = \frac{1}{2}\,N^{2c}\bigl(1-(C')^2\bigr)^{d/2}.
+\end{equation}
+The time to find one marked vertex is
+\begin{equation}
+T_1 = \mathcal{S} + \frac{1}{\sqrt{\epsilon}}\left(\frac{1}{\sqrt{\delta}}\,\mathcal{U} + \mathcal{C}\right).
+\label{eq:T1}
+\end{equation}
+The time for the \textsc{FindAllSolutions} subroutine is
+\begin{equation}
+\mathrm{FAS}_1 = \max\{N^\zeta, 1\}\cdot T_1.
+\label{eq:FAS1}
+\end{equation}
+The total time of one QRW 2-sieve call is
+\begin{equation}
+T_{\mathrm{QRW}} = \mathrm{NbRep}_{\mathrm{QRW}}\cdot\bigl(N + N^{1-c}\cdot \mathrm{FAS}_1\bigr),
+\label{eq:TQRW}
+\end{equation}
+where
+\begin{equation}
+\mathrm{NbRep}_{\mathrm{QRW}} = \max\bigl\{1,\, N^{c-\zeta+o(1)}\bigr\}.
+\label{eq:NbRepQRW}
+\end{equation}
+
+The derived parameters are:
+\begin{align}
+\log_2 \sin(\alpha) &= -(1-c)\cdot n, \\
+\log_2 \sin(\beta) &= (c_2-c_1)\cdot n, \\
+\theta' &= \arccos(C'), \\
+\rho_0 &= \frac{\log_2 \mathcal{V}_d(\beta) - \log_2 \mathcal{W}_d(\beta,\theta')}{n\,d}, \\
+\zeta &= 2c + \frac{\log_2 p_{\mathrm{sol}}}{n\,d}.
+\end{align}
+
+\subsection{Worked example: QRW 2-sieve on the standard 2-sieve problem}
+
+We first verify the framework by reproducing the result of \cite[Theorem~1]{CL21} for the standard 2-sieve problem. In this case, the list size is \(N\) (i.e., \(n = 0.2075\)), the threshold is \(\theta_\alpha^*\) with \(p_{\mathrm{sol}} = \mathcal{V}_d(\theta_\alpha^*)\), and the optimal parameters are
+\begin{equation}
+c \approx 0.3696, \quad c_1 \approx 0.2384, \quad c_2 = 0, \quad \rho \to 0.
+\end{equation}
+With these values:
+\begin{align}
+\log_2 \sin(\alpha) &= -0.1308, & \alpha &\approx 1.1514 \text{ rad}, \\
+\log_2 \sin(\beta) &= -0.0495, & \beta &\approx 1.313 \text{ rad}, \\
+\theta_\alpha^* &\approx 1.158 \text{ rad}, & \rho_0 &\approx 0.106, & \zeta &\approx 0.132.
+\end{align}
+The QRW costs are:
+\begin{align}
+\mathcal{S} &= N^{0.2384}, & \mathcal{U} &= N^{o(1)}, & \delta &= N^{-0.2384}, & \epsilon &= N^{-0.2364}.
+\end{align}
+Then \(T_1 \approx N^{0.2384}\), \(\mathrm{FAS}_1 = N^{0.3704}\), and
+\begin{equation}
+T_{\mathrm{QRW}} \approx N^{1.2384} = 2^{0.2570d+o(d)},
+\end{equation}
+which matches \cite[Theorem~1]{CL21}.
+
+\subsection{Worked example: QRW 2-sieve for the first two inner calls}
+
+We now apply the framework to the first two inner calls of the 4-sieve at the minimal-memory configuration of \cite[Proposition~17]{CL23}: \(|L| = 2^{0.1724d}\), \(\alpha_0 \approx 1.3131\) rad, and balanced configuration \(C_{ij} = -1/4\) for \(i \neq j\).
+
+The residual list size is \(|L_i| = 2^{0.1229d}\). The threshold is
+\begin{equation}
+C'_{12}(\alpha_0) = \frac{-1/4 + \cos^2(1.3131)/3}{\sin^2(1.3131)} \approx -0.244.
+\end{equation}
+The solution probability is
+\begin{equation}
+p_{\mathrm{sol}} = \frac{1}{2}(0.9405)^{d/2} = \frac{1}{2}\cdot 2^{-0.0443d}.
+\end{equation}
+For the combined list \(N_1 = 2|L_i|\) with \(n_1 = 0.1229\), we have \(\log_{N_1} p_{\mathrm{sol}} \approx -0.360\).
+
+We optimise the QRW parameters. The optimal choice is
+\begin{equation}
+c = 0.3, \quad c_1 = 0.13, \quad c_2 = 0, \quad \rho = 0.
+\end{equation}
+With these values:
+\begin{align}
+\zeta &= 2(0.3) - 0.360 = 0.240, \\
+\rho_0 &\approx 0.035, \\
+\epsilon &= N_1^{-0.135}, \\
+T_1 &\approx N_1^{0.1325}, \\
+\mathrm{FAS}_1 &= N_1^{0.3725}, \\
+T_{\mathrm{QRW}} &= N_1^{1.1325}.
+\end{align}
+Converting: \(T_{12} = T_{34} = 2^{0.1392d+o(d)}\).
+
+\subsection{Worked example: QRW 2-sieve for the third inner call}
+
+We now analyse the third inner call in detail. The combined list size is \(N_3 = 2|L_{12}|\) where
+\begin{equation}
+|L_{12}| = |L_i|^2\bigl(1-C'_{12}(\alpha_0)^2\bigr)^{d/2} = 2^{0.2015d}.
+\end{equation}
+So \(n_3 = 0.2015\). The effective threshold is
+\begin{equation}
+C_{\mathrm{eff}} = \frac{\sin^2(\alpha_0)}{2(2+2C_{12})} - 1 = \frac{0.9338}{3} - 1 = -0.6887.
+\end{equation}
+The target angle is \(\theta' = \arccos(-0.6887) \approx 2.330\) rad. The solution probability is
+\begin{equation}
+p_{\mathrm{sol}} = \frac{1}{2}(0.5257)^{d/2} = \frac{1}{2}\cdot 2^{-0.4638d}.
+\end{equation}
+In \(N_3\)-units,
+\begin{equation}
+\log_{N_3} p_{\mathrm{sol}} = \frac{-0.4638}{0.2015} \approx -2.302.
+\end{equation}
+Thus
+\begin{equation}
+\zeta = 2c - 2.302.
+\end{equation}
+Since \(c \le 1\), we have \(\zeta \le -0.302 < 0\) for \emph{every} admissible parameter choice. Consequently, \(\max\{\zeta, 0\} = 0\), and the QRW repetition count becomes
+\begin{equation}
+\mathrm{NbRep}_{\mathrm{QRW}} = N_3^{c-\zeta} = N_3^{c - (2c - 2.302)} = N_3^{2.302 - c}.
+\end{equation}
+
+We now choose specific parameters for the comparison. We take
+\begin{equation}
+c = 0.37, \quad c_1 = 0.26, \quad c_2 = 0.26, \quad \rho = 0.
+\end{equation}
+With \(c_2 = c_1\), we have \(\beta = \pi/2\), so \(\rho_0 = 0\). The marked fraction is
+\begin{equation}
+\epsilon = N_3^{2(0.26) - 2(0.37) + 0 - 0} = N_3^{0.52 - 0.74} = N_3^{-0.22}.
+\end{equation}
+The time to find one marked vertex is
+\begin{align}
+T_1 &= N_3^{0.26} + N_3^{0.11}\bigl(N_3^{0.13} \cdot N_3^{0.13} + 1\bigr) \\
+\nonumber &= N_3^{0.26} + N_3^{0.11}\bigl(N_3^{0.26} + 1\bigr) \approx N_3^{0.37}.
+\end{align}
+Since \(\zeta < 0\), we have \(\mathrm{FAS}_1 = T_1 = N_3^{0.37}\). The repetition count is
+\begin{equation}
+\mathrm{NbRep}_{\mathrm{QRW}} = N_3^{0.37 + 1.562} = N_3^{1.932}.
+\end{equation}
+Finally, the total time of the third QRW call is
+\begin{align}
+T_{\mathrm{QRW}} &= N_3^{1.932}\bigl(N_3 + N_3^{0.63} \cdot N_3^{0.37}\bigr) \\
+\nonumber &= N_3^{1.932}\bigl(N_3 + N_3^{1.0}\bigr) \approx N_3^{2.932}.
+\end{align}
+Converting: \(T_{1234} = 2^{2.932 \cdot 0.2015d + o(d)} = 2^{0.591d+o(d)}\).
+
+This is far worse than the Grover-based third call, which is \(2^{0.1722d}\). In fact, the lower bound derived from \(\zeta < 0\) shows that \emph{any} QRW parameters give at least \(2^{0.494d}\), so the QRW is fundamentally inefficient for the third call.
+
+\subsection{Combined complexity and comparison}
+
+Using the optimised QRW times \(T_{12} = T_{34} = 2^{0.1392d}\) and keeping Grover for the third call, we obtain
+\begin{equation}
+T(\mathrm{FAS}_4) = 2\cdot 2^{0.1392d} + 2^{0.1722d} \approx 2^{0.1722d}.
+\end{equation}
+Substituting into the outer 4-sieve framework with \(\mathrm{NbRep}_{\alpha_0,C} = 2^{0.1069d}\) and \(1/\mathcal{V}(\alpha_0) = 2^{0.0484d}\):
+\begin{align}
+T_{4\text{-sieve}} &= 2^{0.1069d}\bigl(2^{0.1724d} + 2^{0.0484d}\cdot 2^{0.1722d}\bigr) \\
+\nonumber &= 2^{0.1069d}\bigl(2^{0.1724d} + 2^{0.2206d}\bigr) \approx 2^{0.3275d}.
+\end{align}
+This is essentially the same as the Grover-only case \(T = 2^{0.3276d}\).
+
+If instead we use QRW for all three calls, we obtain
+\begin{equation}
+T(\mathrm{FAS}_4) = 2\cdot 2^{0.1392d} + 2^{0.591d} \approx 2^{0.591d},
+\end{equation}
+and hence
+\begin{equation}
+T_{4\text{-sieve}} = 2^{0.1069d}\bigl(2^{0.1724d} + 2^{0.0484d}\cdot 2^{0.591d}\bigr) \approx 2^{0.746d},
+\end{equation}
+which is far worse than the Grover-based 4-sieve of \cite[Proposition~17]{CL23}.
+
+\subsection{Resource summary}
+
+The resource requirements are summarised in Table~\ref{tab:resources}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+Resource & Expression & Value (minimal memory) \\
+\midrule
+Classical memory & \(\max\{|L|,|L_{12}|,|L_{1234}|\}\) & \(2^{0.1724d}\) \\
+QRAM & \((2|L_i|)^{c}\) & \(2^{0.0369d}\) \\
+Quantum memory & \((2|L_i|)^{c_1+\rho}\) & \(2^{0.0160d}\) \\
+\midrule
+Time (QRW first two, Grover third) & --- & \(2^{0.3275d}\) \\
+Time (QRW all three calls) & --- & \(2^{0.746d}\) \\
+Grover-only \cite{CL23} & --- & \(2^{0.3276d}\) \\
+\bottomrule
+\end{tabular}
+\caption{Resource requirements of the adapted algorithm. The QRW is efficient for the first two inner calls but fundamentally inefficient for the third call.}
+\label{tab:resources}
+\end{table}
+
+\section{Discussion}
+
+The adaptation presented above preserves the core structure of the QRW 2-sieve of \cite{CL21}. We have optimised the QRW parameters for the first two inner calls, obtaining \(c = 0.3\), \(c_1 = 0.13\), \(c_2 = 0\), \(\rho = 0\), which gives \(T_{12} = T_{34} = 2^{0.139d+o(d)}\). This improves upon the previously used \(c_1 = 0.05\) by about \(0.008d\) in the exponent.
+
+For the third inner call, we have shown that the QRW is fundamentally inefficient. The effective threshold \(C_{\mathrm{eff}} \approx -0.689\) is so restrictive that the solution probability is exponentially small:
+\begin{equation}
+p_{\mathrm{sol}} = \frac{1}{2}\cdot 2^{-0.4638d},
+\end{equation}
+which in \(N_3\)-units gives \(\log_{N_3} p_{\mathrm{sol}} \approx -2.302\). Since \(\zeta = 2c - 2.302 < 0\) for every admissible \(c \le 1\), the repetition count is always exponentially large. Even with the best possible parameters (\(c=1\), \(c_1=0\), \(\rho=0\)), the QRW time is at least \(2^{0.464d}\), far worse than Grover's \(2^{0.1722d}\).
+
+This explains why the authors of \cite{CL23} found that adding a quantum walk to the inner 2-sieve gave gains close to zero. The only viable use of the QRW is for the first two inner calls, while keeping Grover for the third. This yields a marginal improvement from \(2^{0.3276d}\) to approximately \(2^{0.3275d}\), which is within the numerical error of the optimisation.
+
+A more promising direction for future work would be to redesign the 4-sieve to avoid the restrictive third-level 2-sieve altogether, or to use a different inner subroutine for the third call, such as a dedicated quantum algorithm for the configuration problem with restrictive thresholds.
+
+\begin{thebibliography}{9}
+\bibitem{CL21} A.~Chailloux and J.~Loyer. Lattice sieving via quantum random walks. In \emph{ASIACRYPT 2021}, 2021.
+\bibitem{CL23} A.~Chailloux and J.~Loyer. Classical and quantum 3 and 4-sieves to solve SVP with low memory. In \emph{PQCrypto 2023}, pp.~225--255, 2023.
+\end{thebibliography}
+
+\end{document}
