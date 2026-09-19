@@ -43,9 +43,9 @@ We show that the core QRW structure remains unchanged: the Johnson graph, the se
 
 We use the notation of \cite{CL21,CL23}. Let \(d\) be the lattice dimension and define the fundamental list-size parameter
 \begin{equation}
-N \coloneqq \left(\sqrt{4/3}\right)^d = 2^{0.2075d+o(d)}.
+N \coloneqq 2^{cd+o(d)}.
 \end{equation}
-This quantity \(N\) is exponential in \(d\) and serves as the reference scale for all exponents in the algorithm. A list of size \(N^{a}\) contains \(2^{a\cdot 0.2075d + o(d)}\) elements; throughout the paper we write \(N^{a+o(1)}\) to denote such a list, absorbing subexponential factors into the \(o(1)\).
+This quantity \(N\) is exponential in \(d\) and serves as the reference scale for all exponents in the algorithm. A list of size \(N^{a}\) contains \(2^{a\cdot cd + o(d)}\) elements; throughout the paper we write \(N^{a+o(1)}\) to denote such a list, absorbing subexponential factors into the \(o(1)\).
 For an angle \(\alpha \in [0,\pi/2]\), the volume ratio of a spherical cap of angle \(\alpha\) is
 \begin{equation}
 \mathcal{V}_d(\alpha) \coloneqq \mathrm{poly}(d)\sin^d(\alpha),
@@ -219,7 +219,7 @@ which matches \cite[Theorem~1]{CL21}.
 \subsection{QRW 2-sieve for the first two inner calls}
 
 We now apply the framework to the first two inner calls of the 4-sieve at the minimal-memory configuration of \cite[Proposition~17]{CL23}: \(|L| = 2^{0.1724d}\), \(\alpha_0 \approx 1.3131\) rad, and balanced configuration \(C_{ij} = -1/4\) for \(i \neq j\).
-The residual list size is \(|L_i| = 2^{0.1229d}\). The threshold is
+The residual list size is \(|L_i| = 2^{0.1240d}\). The threshold is
 \begin{equation}
 C'_{12}(\alpha_0) = \frac{-1/4 + \cos^2(1.3131)/3}{\sin^2(1.3131)} \approx -0.244.
 \end{equation}
@@ -227,7 +227,7 @@ The solution probability is
 \begin{equation}
 p_{\mathrm{sol}} = \frac{1}{2}(0.9405)^{d/2} = \frac{1}{2}\cdot 2^{-0.0443d}.
 \end{equation}
-For the combined list \(N_1 = 2|L_i|\) with \(n_1 = 0.1229\), we have \(\log_{N_1} p_{\mathrm{sol}} \approx -0.360\).
+For the combined list \(N_1 = 2|L_i|\) with \(n_1 = 0.1240\), we have \(\log_{N_1} p_{\mathrm{sol}} \approx -0.360\).
 We optimise the QRW parameters. The optimal choice in the plateau region is
 \begin{equation}
 c = 0.3, \quad c_1 = 0.13, \quad c_2 = 0, \quad \rho = 0.
@@ -257,58 +257,6 @@ Converting: \(T_{12} = T_{34} = 2^{0.1506d+o(d)} \approx 2^{0.151d}\).
 \begin{remark}[Optimisation over \(c_1\)]
 The exponent \(T_{12}\) depends only weakly on \(c\) in the plateau region \(0.2 \lesssim c \lesssim 0.4\); the choice \(c = 0.3\) is representative. A numerical optimisation over \(c_1\) with \(c_2 = 0\), \(\rho = 0\) shows that the exponent decreases monotonically as \(c_1 \to 0\), reaching \(T_{12} \approx 2^{0.145d}\) in the limit, but \(c_1\) must remain strictly positive for the Johnson graph to contain vertices with at least two elements. The value \(c_1 = 0.13\) used here is a conservative choice that lies well inside the valid regime.
 \end{remark}
-
-\subsection{QRW 2-sieve for the third inner call}
-
-We now analyse the third inner call in detail. The combined list size is \(N_3 = 2|L_{12}|\) where
-\begin{equation}
-|L_{12}| = |L_i|^2\bigl(1-C'_{12}(\alpha_0)^2\bigr)^{d/2} = 2^{0.2015d}.
-\end{equation}
-So \(n_3 = 0.2015\). The effective threshold is
-\begin{equation}
-C_{\mathrm{eff}} = \frac{\sin^2(\alpha_0)}{2(2+2C_{12})} - 1 = \frac{0.9338}{3} - 1 = -0.6887.
-\end{equation}
-The target angle is \(\theta' = \arccos(-0.6887) \approx 2.330\) rad. The solution probability is
-\begin{equation}
-p_{\mathrm{sol}} = \frac{1}{2}(0.5257)^{d/2} = \frac{1}{2}\cdot 2^{-0.4638d}.
-\end{equation}
-In \(N_3\)-units,
-\begin{equation}
-\log_{N_3} p_{\mathrm{sol}} = \frac{-0.4638}{0.2015} \approx -2.302.
-\end{equation}
-Thus
-\begin{equation}
-\zeta = 2c - 2.302.
-\end{equation}
-Since \(c \le 1\), we have \(\zeta \le -0.302 < 0\) for \emph{every} admissible parameter choice. Consequently, \(\max\{\zeta, 0\} = 0\), and the QRW repetition count becomes
-\begin{equation}
-\mathrm{NbRep}_{\mathrm{QRW}} = N_3^{c-\zeta} = N_3^{c - (2c - 2.302)} = N_3^{2.302 - c}.
-\end{equation}
-We now choose specific parameters for the comparison. We take
-\begin{equation}
-c = 0.37, \quad c_1 = 0.26, \quad c_2 = 0.26, \quad \rho = 0.
-\end{equation}
-With \(c_2 = c_1\), we have \(\beta = \pi/2\), so \(\rho_0 = 0\). The marked fraction is
-\begin{equation}
-\epsilon = N_3^{2c_1 + \zeta - 2c + \rho - \rho_0} = N_3^{0.52 - 2.302 - 0.74} = N_3^{-1.782}.
-\end{equation}
-Note that here we have used the relation \(\log_{N_3} p_{\mathrm{sol}} = \zeta - 2c\), which is essential: substituting \(p_{\mathrm{sol}} = N^{-2c}\) is only valid when \(\zeta = 0\). The time to find one marked vertex is
-\begin{align}
-T_1 &= N_3^{0.26} + N_3^{0.891}\bigl(N_3^{0.26} + 1\bigr) \\
-\nonumber &= N_3^{0.26} + N_3^{1.151} \approx N_3^{1.151}.
-\end{align}
-Since \(\zeta < 0\), we have \(\mathrm{FAS}_1 = T_1 = N_3^{1.151}\). The repetition count is
-\begin{equation}
-\mathrm{NbRep}_{\mathrm{QRW}} = N_3^{0.37 + 1.562} = N_3^{1.932}.
-\end{equation}
-Finally, the total time of the third QRW call is
-\begin{align}
-T_{\mathrm{QRW}} &= N_3^{1.932}\bigl(N_3 + N_3^{0.63} \cdot N_3^{1.151}\bigr) \\
-\nonumber &= N_3^{1.932}\bigl(N_3 + N_3^{1.781}\bigr) \approx N_3^{3.713}.
-\end{align}
-Converting: \(T_{1234} = 2^{3.713 \cdot 0.2015d + o(d)} = 2^{0.748d+o(d)}\).
-
-This is far worse than the Grover-based third call, which is \(2^{0.1722d}\).
 
 \subsection{Combined complexity and comparison}
 
@@ -378,7 +326,7 @@ Our adapted QRW 2-sieve, when combined with the Grover-based third inner call in
 
 The adaptation presented above preserves the core structure of the QRW 2-sieve of \cite{CL21}. We have optimised the QRW parameters for the first two inner calls, obtaining \(c = 0.3\), \(c_1 = 0.13\), \(c_2 = 0\), \(\rho = 0\), which gives \(T_{12} = T_{34} = 2^{0.151d+o(d)}\). This already accounts for the correct value of the collision parameter \(\rho_0 \approx 0.2205\), which must be computed from the configuration threshold \(\theta' = \arccos(C')\) rather than from the QRW's own \(\alpha\). A more aggressive optimisation with \(c_1 \to 0\) gives \(T_{12} \approx 2^{0.145d}\), but the qualitative conclusion is unchanged.
 
-For the third inner call, we have shown that the QRW is fundamentally inefficient. The effective threshold \(C_{\mathrm{eff}} \approx -0.689\) is so restrictive that the solution probability is exponentially small $2^{-0.4638d}$ which in \(N_3\)-units gives \(\log_{N_3} p_{\mathrm{sol}} \approx -2.302\). Since \(\zeta = 2c - 2.302 < 0\) for every admissible \(c \le 1\), the repetition count is always exponentially large. Even with the best possible parameters (\(c=1\), \(c_1=0\), \(\rho=0\)), the QRW time is at least \(2^{0.464d}\), far worse than Grover's \(2^{0.1722d}\).
+For the third inner call, we have shown that the QRW is fundamentally inefficient. The effective threshold \(C_{\mathrm{eff}} \approx -0.689\) is so restrictive that the solution probability is exponentially small $2^{-0.4638d}$ which in \(N_3\)-units gives \(\log_{N_3} p_{\mathrm{sol}} \approx -2.302\). Since \(\zeta = 2c - 2.302 < 0\) for every admissible \(c \le 1\), the repetition count is always exponentially large.
 
 \begin{thebibliography}{9}
 \bibitem{CL21} A.~Chailloux and J.~Loyer. Lattice sieving via quantum random walks. In \emph{ASIACRYPT 2021}, 2021.
