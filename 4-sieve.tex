@@ -16,7 +16,7 @@
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{remark}[theorem]{Remark}
 
-\title{\textbf{Quantum Random Walk Sieving for the 4-Sieve}}
+\title{\textbf{Adapting Quantum Random Walk Sieving to the 4-Sieve}}
 \author{
     MohamadAli Khajeian\\[0.5em]
     \normalsize School of Engineering Sciences, College of Engineering, University of Tehran\\
@@ -28,14 +28,14 @@
 \maketitle
 
 \begin{abstract}
-We present an adaptation of the quantum random walk (QRW) 2-sieve of Chailloux and Loyer \cite{CL21} to serve as the inner two-list subroutine inside the quantum 4-sieve framework of Chailloux and Loyer \cite{CL23}. The adaptation preserves the Johnson graph, the second-level random product code, and the quantum data structure of the original algorithm, and modifies only the marked condition and the probability that a random cross-pair is a solution. We provide the complete algorithms, discuss the modifications required, and give a full complexity analysis for the running time, QRAM, quantum memory, and classical memory. We optimise the QRW parameters for the first two inner calls, and also analyse the third inner call in detail, showing that it is fundamentally inefficient because the solution probability is exponentially small.
+We present an adaptation of the quantum random walk (QRW) 2-sieve to serve as the inner two-list subroutine inside a quantum 4-sieve. Inspired by the classical 4-sieve, we construct the quantum 4-sieve and use the QRW 2-sieve as its inner two-list subroutine. The adaptation preserves the Johnson graph, the second-level random product code, and the quantum data structure of the original algorithm, and modifies only the marked condition and the probability that a random cross-pair is a solution. We provide the complete algorithms, discuss the modifications required, and give a full complexity analysis for the running time, QRAM, quantum memory, and classical memory. We optimise the QRW parameters for the first two inner calls, and also analyse the third inner call in detail, showing that it is fundamentally inefficient because the solution probability is exponentially small.
 \end{abstract}
 
 \section{Introduction}
 
 The Shortest Vector Problem (SVP) is at the foundation of lattice-based cryptography. The best known heuristic quantum algorithm for SVP runs in time \(2^{0.2570d+o(d)}\) \cite{CL21}, obtained by replacing Grover's algorithm inside the 2-sieve by a quantum random walk with an additional layer of locality-sensitive filtering. In parallel, \(k\)-sieve algorithms have been developed to reduce memory requirements at the cost of increased running time \cite{CL23}. In particular, the quantum 4-sieve of \cite{CL23} uses nested Grover searches and achieves a time-memory trade-off with quantum-accessible classical memory of size \(2^{0.1724d}\) to \(2^{0.1813d}\).
 
-In this work, we investigate whether the QRW 2-sieve of \cite{CL21} can be used as the inner two-list subroutine inside the 4-sieve framework of \cite{CL23}, replacing the Grover-based inner 2-sieve. This requires adapting the QRW 2-sieve to handle two distinct lists rather than one, an arbitrary configuration threshold \(C'_{12}(\alpha)\) rather than the fixed angle \(\theta_\alpha^*\), and possibly non-unit vectors in the second-level call.
+In this work, we investigate whether the QRW 2-sieve of \cite{CL21} can be used as the inner two-list subroutine inside the 4-sieve framework of \cite{CL23}. This requires adapting the QRW 2-sieve to handle two distinct lists rather than one, an arbitrary configuration threshold \(C'_{12}(\alpha)\) rather than the fixed angle \(\theta_\alpha^*\), and possibly non-unit vectors in the second-level call.
 
 We show that the core QRW structure remains unchanged: the Johnson graph, the second random product code \(\mathcal{C}_2\), the quantum data structure for the lists \(J^v(\vec{t})\), and the MNRS framework are all preserved. Only the marked condition and the probability \(p_{\mathrm{sol}}\) that a random cross-pair is a solution must be adjusted. We give the complete algorithms, discuss the modifications, and provide the full complexity analysis. We also analyse the third inner call in detail, showing that the QRW is fundamentally inefficient there because \(p_{\mathrm{sol}}\) is exponentially small.
 
@@ -46,7 +46,6 @@ We use the notation of \cite{CL21,CL23}. Let \(d\) be the lattice dimension and 
 N \coloneqq \left(\sqrt{4/3}\right)^d = 2^{0.2075d+o(d)}.
 \end{equation}
 This quantity \(N\) is exponential in \(d\) and serves as the reference scale for all exponents in the algorithm. A list of size \(N^{a}\) contains \(2^{a\cdot 0.2075d + o(d)}\) elements; throughout the paper we write \(N^{a+o(1)}\) to denote such a list, absorbing subexponential factors into the \(o(1)\).
-
 For an angle \(\alpha \in [0,\pi/2]\), the volume ratio of a spherical cap of angle \(\alpha\) is
 \begin{equation}
 \mathcal{V}_d(\alpha) \coloneqq \mathrm{poly}(d)\sin^d(\alpha),
@@ -56,7 +55,6 @@ which represents the fraction of the unit sphere covered by a cap of angular rad
 \mathcal{W}_d(\alpha,\theta) \coloneqq \mathrm{poly}(d)\left(1-\frac{2\cos^2(\alpha)}{1+\cos(\theta)}\right)^{d/2},
 \end{equation}
 which is well-defined provided \(2\cos^2(\alpha) < 1+\cos(\theta)\), i.e., the two caps overlap.
-
 The critical angle between residual vectors that characterises reducibility of two border points is
 \begin{equation}
 \theta_\alpha^* \coloneqq 2\arcsin\!\left(\frac{1}{2\sin(\alpha)}\right),
@@ -122,7 +120,7 @@ Three modifications are required to adapt the QRW 2-sieve to the bipartite setti
 \end{algorithmic}
 \end{algorithm}
 
-\section{Main Algorithm: 4-Sieve with QRW Inner 2-Sieve}
+\section{4-Sieve with QRW Inner 2-Sieve}
 
 \begin{algorithm}[H]
 \caption{4-Sieve with QRW inner 2-sieve}
@@ -148,7 +146,7 @@ Three modifications are required to adapt the QRW 2-sieve to the bipartite setti
 
 \section{Complexity Analysis}
 
-We now give the full complexity of the adapted QRW 2-sieve and of the outer 4-sieve. All calculations are performed in the QRAM model and expressed in the exponent notation \(N^{cd+o(1)}\), where \(N = 2^{0.2075d+o(d)}\).
+We now give the full complexity of the adapted QRW 2-sieve and of the outer 4-sieve. All calculations are performed in the QRAM model and expressed in the exponent notation \(N^{cd+o(1)}\).
 
 \subsection{Complexity of the adapted QRW 2-sieve}
 
@@ -286,7 +284,6 @@ Since \(c \le 1\), we have \(\zeta \le -0.302 < 0\) for \emph{every} admissible 
 \begin{equation}
 \mathrm{NbRep}_{\mathrm{QRW}} = N_3^{c-\zeta} = N_3^{c - (2c - 2.302)} = N_3^{2.302 - c}.
 \end{equation}
-
 We now choose specific parameters for the comparison. We take
 \begin{equation}
 c = 0.37, \quad c_1 = 0.26, \quad c_2 = 0.26, \quad \rho = 0.
@@ -311,14 +308,7 @@ T_{\mathrm{QRW}} &= N_3^{1.932}\bigl(N_3 + N_3^{0.63} \cdot N_3^{1.151}\bigr) \\
 \end{align}
 Converting: \(T_{1234} = 2^{3.713 \cdot 0.2015d + o(d)} = 2^{0.748d+o(d)}\).
 
-This is far worse than the Grover-based third call, which is \(2^{0.1722d}\). In fact, the lower bound derived from \(\zeta < 0\) shows that \emph{any} QRW parameters give at least \(2^{0.464d}\), so the QRW is fundamentally inefficient for the third call.
-
-\begin{remark}[Lower bound for the third call]
-The lower bound is obtained by taking the most favourable admissible parameters \(c = 1\), \(c_1 = 0\), \(c_2 = 0\), \(\rho = 0\). Then \(\zeta = -0.302\), \(\epsilon = N_3^{-2.302}\), \(T_1 = N_3^{0.302}\), \(\mathrm{NbRep}_{\mathrm{QRW}} = N_3^{1.302}\), and
-\begin{equation}
-T_{\mathrm{QRW}} \ge N_3^{2.302} = 2^{0.464d+o(d)}.
-\end{equation}
-\end{remark}
+This is far worse than the Grover-based third call, which is \(2^{0.1722d}\).
 
 \subsection{Combined complexity and comparison}
 
@@ -388,11 +378,7 @@ Our adapted QRW 2-sieve, when combined with the Grover-based third inner call in
 
 The adaptation presented above preserves the core structure of the QRW 2-sieve of \cite{CL21}. We have optimised the QRW parameters for the first two inner calls, obtaining \(c = 0.3\), \(c_1 = 0.13\), \(c_2 = 0\), \(\rho = 0\), which gives \(T_{12} = T_{34} = 2^{0.151d+o(d)}\). This already accounts for the correct value of the collision parameter \(\rho_0 \approx 0.2205\), which must be computed from the configuration threshold \(\theta' = \arccos(C')\) rather than from the QRW's own \(\alpha\). A more aggressive optimisation with \(c_1 \to 0\) gives \(T_{12} \approx 2^{0.145d}\), but the qualitative conclusion is unchanged.
 
-For the third inner call, we have shown that the QRW is fundamentally inefficient. The effective threshold \(C_{\mathrm{eff}} \approx -0.689\) is so restrictive that the solution probability is exponentially small:
-\begin{equation}
-p_{\mathrm{sol}} = \frac{1}{2}\cdot 2^{-0.4638d},
-\end{equation}
-which in \(N_3\)-units gives \(\log_{N_3} p_{\mathrm{sol}} \approx -2.302\). Since \(\zeta = 2c - 2.302 < 0\) for every admissible \(c \le 1\), the repetition count is always exponentially large. Even with the best possible parameters (\(c=1\), \(c_1=0\), \(\rho=0\)), the QRW time is at least \(2^{0.464d}\), far worse than Grover's \(2^{0.1722d}\).
+For the third inner call, we have shown that the QRW is fundamentally inefficient. The effective threshold \(C_{\mathrm{eff}} \approx -0.689\) is so restrictive that the solution probability is exponentially small $2^{-0.4638d}$ which in \(N_3\)-units gives \(\log_{N_3} p_{\mathrm{sol}} \approx -2.302\). Since \(\zeta = 2c - 2.302 < 0\) for every admissible \(c \le 1\), the repetition count is always exponentially large. Even with the best possible parameters (\(c=1\), \(c_1=0\), \(\rho=0\)), the QRW time is at least \(2^{0.464d}\), far worse than Grover's \(2^{0.1722d}\).
 
 \begin{thebibliography}{9}
 \bibitem{CL21} A.~Chailloux and J.~Loyer. Lattice sieving via quantum random walks. In \emph{ASIACRYPT 2021}, 2021.
