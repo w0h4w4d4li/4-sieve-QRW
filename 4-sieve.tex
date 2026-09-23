@@ -216,6 +216,7 @@ T_{\mathrm{QRW}} \approx N^{1.2384} = 2^{0.2570d+o(d)},
 which matches \cite[Theorem~1]{CL21}.
 
 \subsection{QRW 2-sieve for the first two inner calls}
+\label{sec_QRW_first2}
 
 We now apply the framework to the first two inner calls of the 4-sieve at the minimal-memory configuration of \cite[Proposition~17]{CL23}: \(|L| = 2^{0.1724d}\), \(\alpha_0 \approx 1.3131\) rad, and balanced configuration \(C_{ij} = -1/4\) for \(i \neq j\).
 The residual list size is \(|L_i| = 2^{0.1240d}\). The threshold is
@@ -354,9 +355,9 @@ hence
 \[
 T_{1234}
 = 2^{0.2033d\cdot 2}\cdot 2^{-0.4635d/2}
-= 2^{0.1749d+o(d)}.
+= 2^{0.2033d+o(d)}.
 \]
-From Section~\ref{sec:first-two-calls}, the first two inner calls
+From Section~\ref{sec_QRW_first2}, the first two inner calls
 cost
 \[
 T_{12} = T_{34} \approx 2^{0.1517d+o(d)}.
@@ -365,7 +366,7 @@ Thus the total time per tuple‑filter is dominated by the third call:
 \begin{equation}
 T_{\text{filter}}
 = T_{12}+T_{34}+T_{1234}
-\approx 2^{0.1749d+o(d)}.
+\approx 2^{0.2033d+o(d)}.
 \label{eq:Tfilter}
 \end{equation}
 
@@ -380,13 +381,13 @@ Therefore the total running time of the hybrid quantum 4‑sieve is
 \begin{equation}
 T_{\text{hybrid}}
 = \mathrm{NbRep}\cdot \mathrm{NbFilters}\cdot T_{\text{filter}}
-= 2^{0.1069d}\cdot 2^{0.0486d}\cdot 2^{0.1749d}
-= 2^{0.3304d+o(d)}.
+= 2^{0.1069d}\cdot 2^{0.0486d}\cdot 2^{0.2033d}
+= 2^{0.3588d+o(d)}.
 \label{eq:Thybrid}
 \end{equation}
 We round this to
 \[
-\boxed{T_{\text{hybrid}} \approx 2^{0.330d+o(d)}.}
+\boxed{T_{\text{hybrid}} \approx 2^{0.359d+o(d)}.}
 \]
 
 
@@ -404,7 +405,7 @@ minimal‑memory regime is summarized in Table~\ref{tab:comparison}.
 Algorithm & Classical memory & Running time \\
 \midrule
 Classical 4‑sieve \cite{CL23} & \(2^{0.1724d}\) & \(2^{0.418d}\) \\
-Hybrid quantum 4‑sieve (ours) & \(2^{0.1724d}\) & \(2^{0.330d}\) \\
+Hybrid quantum 4‑sieve (ours) & \(2^{0.1724d}\) & \(2^{0.359d}\) \\
 Grover 4‑sieve \cite{CL23} & \(2^{0.1724d}\) & \(2^{0.3276d}\) \\
 \bottomrule
 \end{tabular}
@@ -414,13 +415,13 @@ Grover 4‑sieve \cite{CL23} & \(2^{0.1724d}\) & \(2^{0.3276d}\) \\
 
 At the minimal classical memory \(M=2^{0.1724d}\), the classical
 4‑sieve runs in time \(2^{0.418d+o(d)}\), whereas our hybrid algorithm
-runs in time \(2^{0.330d+o(d)}\). The improvement factor is
+runs in time \(2^{0.359d+o(d)}\). The improvement factor is
 \[
-2^{0.418d-0.330d} = 2^{0.088d},
+2^{0.418d-0.359d} = 2^{0.059d},
 \]
 which is an exponential speedup. For comparison, the pure quantum
 4‑sieve of \cite{CL23} achieves \(2^{0.3276d+o(d)}\) at the same
-memory, so our hybrid is only slightly slower (\(2^{0.0024d}\)) than
+memory, so our hybrid is only slightly slower (\(2^{0.0312d}\)) than
 the best known quantum 4‑sieve.
 
 The advantage of the hybrid is most pronounced in the low‑memory
