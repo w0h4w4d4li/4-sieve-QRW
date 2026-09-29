@@ -411,44 +411,44 @@ which matches \cite[Theorem~1]{CL21}.
 \subsection{QRW 2-sieve for the first two inner calls}
 \label{sec_QRW_first2}
 
-We now apply the framework to the first two inner calls of the 4-sieve at the minimal-memory configuration of \cite[Proposition~17]{CL23}: \(|L| = 2^{0.1724d}\), \(\alpha_0 = 1.326728\) rad, and balanced configuration \(C_{ij} = -1/4\) for \(i \neq j\).
-The residual list size is \(|R_i| = 2^{0.137896d}\). The threshold is
+We now apply the framework to the first two inner calls of the 4-sieve at the minimal-memory configuration of \cite[Proposition~17]{CL23}: \(|L| = 2^{0.1724d}\), \(\alpha_0 = 1.350196\) rad, and balanced configuration \(C_{ij} = -1/4\) for \(i \neq j\).
+The residual list size is \(|R_i| = 2^{0.137008d}\). The threshold is
 \begin{equation}
-C'_{12}(\alpha_0) = \frac{-1/4 + \cos^2(1.326728)/3}{\sin^2(1.326728)} \approx -0.244832.
+C'_{12}(\alpha_0) = \frac{-1/4 + \cos^2(1.350196)/3}{\sin^2(1.350196)} = -0.245809.
 \end{equation}
 The solution probability is
 \begin{equation}
-p_{12} = \frac{1}{2}\bigl(1 - C'_{12}{}^2\bigr)^{d/2}
-= \frac{1}{2}\cdot 2^{-0.044590d}.
+p_{12} = \bigl(1 - C'_{12}{}^2\bigr)^{d/2}
+= 2^{-0.044958d}.
 \end{equation}
-For the combined list \(N_1 = 2|R_i|\) with \(n_1 = 0.137896\), we have \(\log_{N_1} p_{12} \approx -0.3233\).
+For the combined list \(N_1 = 2|R_i|\) with \(n_1 = 0.137008\), we have \(\log_{N_1} p_{12} \approx -0.32815\).
 We optimise the QRW parameters. The optimal choice is
 \begin{equation}
-c = 0.2, \quad c_1 = 0.05, \quad c_2 = 0.05, \quad \rho = 0.
+c = 0.3083, \quad c_1 = 0.1000, \quad c_2 = 0.0000, \quad \rho = 0.
 \end{equation}
-With these values, we compute the collision parameter. We have
+With these values, we compute the collision parameter:
 \begin{align}
-\log_2 \sin(\beta) &= (c_2-c_1)\cdot n_1 = 0 \cdot 0.137896 = 0, \\
-\cos^2(\beta) &= 0, \\
-1 + \cos(\theta') &= 1 - 0.244832 = 0.755168, \\
-\log_2 \mathcal{W}_d(\beta,\theta')/d &= \tfrac{1}{2}\log_2\!\Bigl(1-\tfrac{2\cos^2(\beta)}{1+\cos(\theta')}\Bigr) = 0, \\
-\rho_0 &= 0.
+\log_2 \sin(\beta) &= (c_2-c_1)\cdot n_1 = -0.013701, \\
+\cos^2(\beta) &\approx 0.02027, \\
+1 + \cos(\theta') &= 1 - 0.245809 = 0.754191, \\
+\log_2 \mathcal{W}_d(\beta,\theta')/d &\approx -0.03737, \\
+\rho_0 &= \frac{-0.013701 - (-0.03737)}{0.137008} = 0.169462.
 \end{align}
-The marked fraction is therefore
+The marked fraction is
 \begin{equation}
 \epsilon = N_1^{2c_1} \cdot p_{12} \cdot N_1^{\rho-\rho_0}
-= N_1^{0.1} \cdot 2^{-0.044590d} \cdot N_1^0
-= N_1^{0.1 - 0.3233} = N_1^{-0.2233}.
+= N_1^{0.2 - 0.32815 - 0.169462}
+= N_1^{-0.297612}.
 \end{equation}
 The remaining quantities are
 \begin{align}
-\zeta &= 2c + \log_{N_1} p_{12} = 0.4 - 0.3233 = 0.076643, \\
-T_1 &= N_1^{0.05} + N_1^{0.1117}\bigl(N_1^{0.05} + 1\bigr) \approx N_1^{0.161678}, \\
-\mathrm{FAS}_1 &= N_1^{0.076643} \cdot N_1^{0.161678} = N_1^{0.238322}, \\
-\mathrm{NbRep}_{\mathrm{QRW}} &= N_1^{0.2 - 0.076643} = N_1^{0.123357}, \\
-T_{\mathrm{QRW}} &= N_1^{0.123357}\bigl(N_1 + N_1^{0.8} \cdot N_1^{0.238322}\bigr) \approx N_1^{1.161679}.
+\zeta &= 2c + \log_{N_1} p_{12} = 0.6166 - 0.32815 = 0.288526, \\
+T_1 &= N_1^{0.1} + N_1^{0.148806}\bigl(N_1^{0} + 1\bigr) \approx N_1^{0.198801}, \\
+\mathrm{FAS}_1 &= N_1^{0.288526} \cdot N_1^{0.198801} = N_1^{0.487327}, \\
+\mathrm{NbRep}_{\mathrm{QRW}} &= N_1^{0.3083 - 0.288526} = N_1^{0.019807}, \\
+T_{\mathrm{QRW}} &= N_1^{0.019807}\bigl(N_1 + N_1^{0.6917} \cdot N_1^{0.487327}\bigr) \approx N_1^{1.198801}.
 \end{align}
-Converting \(T_{12} = T_{34} = 2^{0.137896 \times 1.161679\,d + o(d)} = 2^{0.160191d+o(d)} \approx 2^{0.160d}\).
+Converting \(T_{12} = T_{34} = 2^{0.137008 \times 1.198801\,d + o(d)} = 2^{0.164245d+o(d)}\).
 
 \subsection{Complexity of the Third Inner Call}
 \label{sec:third-call}
@@ -513,107 +513,107 @@ elementary operations.
 We take the minimal-memory parameters of \cite[Proposition~17]{CL23}:
 \[
 |L| = 2^{0.1724d},\qquad
-\alpha_0 = 1.326728\ \text{rad},\qquad
+\alpha_0 = 1.350196\ \text{rad},\qquad
 C_{ij}=-\frac14\ (i\neq j).
 \]
 Then
 \[
-\sin^2(\alpha_0) = 0.941604,\qquad
+\sin^2(\alpha_0) = 0.952120,\qquad
 R^2 = 1.5,\qquad
-C_{\mathrm{eff}} = -0.686132.
+C_{\mathrm{eff}} = -0.682627.
 \]
 The first-level threshold is
 \[
 C'_{12}(\alpha_0)
 = \frac{-\frac14+\frac{\cos^2(\alpha_0)}{3}}{\sin^2(\alpha_0)}
-= -0.244832.
+= -0.245809.
 \]
 The residual list size is
 \[
-|R_i| = 2^{0.137896d},
+|R_i| = 2^{0.137008d},
 \]
 so that
 \[
 |L_{12}|
 = |R_i|^2\bigl(1-C'_{12}(\alpha_0)^2\bigr)^{d/2}
-= 2^{0.231203d}.
+= 2^{0.229057d}.
 \]
 The solution probability is
 \[
 p_{\mathrm{sol}}
 = \bigl(1-C_{\mathrm{eff}}^2\bigr)^{d/2}
-= 2^{-0.459026d},
+= 2^{-0.452516d},
 \]
 hence
 \[
 T_{1234}
-= 2^{0.231203d\cdot 2}\cdot 2^{-0.459026d/2}
-= 2^{0.232892d+o(d)}.
+= 2^{0.229057d\cdot 2}\cdot 2^{-0.452516d/2}
+= 2^{0.231856d+o(d)}.
+\]
+The expected number of solutions per tuple-filter is
+\[
+|\mathrm{Sol}| = |L_{12}|^2 p_{\mathrm{sol}} = 2^{0.005598d}.
 \]
 From Section~\ref{sec_QRW_first2}, the first two inner calls
 cost
 \[
-T_{12} = T_{34} \approx 2^{0.160191d+o(d)}.
+T_{12} = T_{34} \approx 2^{0.164245d+o(d)}.
 \]
 Thus the total time per tuple-filter is dominated by the third call:
 \begin{equation}
 T_{\text{filter}}
 = T_{12}+T_{34}+T_{1234}
-\approx 2^{0.232892d+o(d)}.
+\approx 2^{0.231856d+o(d)}.
 \label{eq:Tfilter}
 \end{equation}
 
 Finally, we multiply by the number of tuple-filters and the number of
 repetitions of the outer loop. For the minimal-memory configuration with
-\(\alpha_0 = 1.326728\) rad, we have
+\(\alpha_0 = 1.350196\) rad, we have
 \[
-\mathrm{NbFilters} = 2^{0.0434d},\qquad
-\mathrm{NbRep} = 2^{0.0958d}.
+\mathrm{NbFilters} = 2^{0.0354d},\qquad
+\mathrm{NbRep} = 2^{0.0780d}.
 \]
 Therefore the total running time of the hybrid quantum 4-sieve is
 \begin{equation}
 T_{\text{hybrid}}
 = \mathrm{NbRep}\cdot \mathrm{NbFilters}\cdot T_{\text{filter}}
-= 2^{0.0958d}\cdot 2^{0.0434d}\cdot 2^{0.232892d}
-= 2^{0.372070d+o(d)}.
+= 2^{0.0780d}\cdot 2^{0.0354d}\cdot 2^{0.231856d}
+= 2^{0.345301d+o(d)}.
 \label{eq:Thybrid}
 \end{equation}
 We round this to
 \[
-\boxed{T_{\text{hybrid}} \approx 2^{0.372d+o(d)}.}
+\boxed{T_{\text{hybrid}} \approx 2^{0.345d+o(d)}.}
 \]
 
-\section{Comparison}
-\label{sec:comparison}
-
-We now compare the hybrid quantum 4-sieve with the classical 4-sieve
-of \cite{CL23} at the same classical memory. The relevant data for the
-minimal-memory regime is summarized in Table~\ref{tab:comparison}.
-
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\begin{tabular}{lccc}
+\caption{Comparison of 4-sieve algorithms at different classical memory constraints.}
+\label{tab:comparison}
+\small
+\begin{tabular}{@{}l c c c@{}}
 \toprule
-Algorithm & Classical memory & Running time \\
+\textbf{Classical memory} & \textbf{Classical 4-sieve} & \textbf{Hybrid quantum 4-sieve} & \textbf{quantum 4-sieve} \\
+ & \cite{CL23} & (ours) & \cite{CL23} \\
 \midrule
-Classical 4-sieve \cite{CL23} & \(2^{0.1724d}\) & \(2^{0.418d}\) \\
-Hybrid quantum 4-sieve (ours) & \(2^{0.1724d}\) & \(2^{0.372d}\) \\
-Grover 4-sieve \cite{CL23} & \(2^{0.1724d}\) & \(2^{0.3276d}\) \\
+\(2^{0.1724d}\) & \(2^{0.418d}\) & \(2^{0.345d}\) & \(2^{0.3276d}\) \\
+\(2^{0.1813d}\) & \(2^{0.???d}\) & \(2^{0.???d}\) & \(2^{0.3120d}\) \\
+\(2^{0.1887d}\) & \(2^{0.324d}\) & \(2^{0.???d}\) & \(2^{0.???d}\) \\
+\(2^{0.2075d}\) & \(2^{0.2925d}\) & \(2^{0.???d}\) & \(2^{0.???d}\) \\
 \bottomrule
 \end{tabular}
-\caption{Comparison at minimal classical memory.}
-\label{tab:comparison}
 \end{table}
 
 At the minimal classical memory \(M=2^{0.1724d}\), the classical
 4-sieve runs in time \(2^{0.418d+o(d)}\), whereas our hybrid algorithm
-runs in time \(2^{0.372d+o(d)}\). The improvement factor is
+runs in time \(2^{0.345d+o(d)}\). The improvement factor is
 \[
-2^{0.418d-0.372d} = 2^{0.046d},
+2^{0.418d-0.345d} = 2^{0.073d},
 \]
 which is an exponential speedup. For comparison, the pure quantum
 4-sieve of \cite{CL23} achieves \(2^{0.3276d+o(d)}\) at the same
-memory, so our hybrid is slower by \(2^{0.0444d}\) than the best known
+memory, so our hybrid is slower by \(2^{0.0174d}\) than the best known
 quantum 4-sieve.
 
 The advantage of the hybrid is most pronounced in the low-memory
@@ -632,6 +632,7 @@ random walk techniques can be successfully integrated into the
 \(k\)-sieve framework. While it does not surpass the best pure quantum
 4-sieve, it offers a significant quantum advantage over the classical
 4-sieve in the regime where memory is severely constrained.
+
 
 \begin{thebibliography}{9}
 \bibitem{CL21} A.~Chailloux and J.~Loyer. Lattice sieving via quantum random walks. In \emph{ASIACRYPT 2021}, 2021.
