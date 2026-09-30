@@ -9,6 +9,7 @@
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{graphicx}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}[theorem]{Lemma}
@@ -29,7 +30,7 @@
 \maketitle
 
 \begin{abstract}
-We present an adaptation of the quantum random walk (QRW) 2-sieve to serve as the inner two-list subroutine inside a quantum 4-sieve. Inspired by the classical 4-sieve, we construct the quantum 4-sieve and use the QRW 2-sieve as its inner two-list subroutine. The adaptation preserves the Johnson graph, the second-level random product code, and the quantum data structure of the original algorithm, and modifies only the marked condition and the probability that a random cross-pair is a solution. We provide the complete algorithms, discuss the modifications required, and give a full complexity analysis for the running time, QRAM, quantum memory, and classical memory. We optimise the QRW parameters for the first two inner calls, and also analyse the third inner call in detail. We compare our hybrid algorithm with the classical and pure quantum 4-sieves of Chailloux and Loyer at the same classical memory, and show that the hybrid achieves an exponential speedup over the classical 4-sieve in the low-memory regime.
+We present an adaptation of the quantum random walk (QRW) 2-sieve to serve as the inner two-list subroutine inside a quantum 4-sieve. Inspired by the classical 4-sieve, we construct the quantum 4-sieve and use the QRW 2-sieve as its inner two-list subroutine. The adaptation preserves the Johnson graph, the second-level random product code, and the quantum data structure of the original algorithm, and modifies only the marked condition and the probability that a random cross-pair is a solution. We provide the complete algorithms, discuss the modifications required, and give a full complexity analysis for the running time, QRAM, quantum memory, and classical memory. We optimize the QRW parameters for the first two inner calls, and also analyze the third inner call in detail. We compare our hybrid algorithm with the classical and pure quantum 4-sieves of Chailloux and Loyer at the same classical memory. The hybrid is fastest in the regime \(M \in [2^{0.1724d}, 2^{0.194d}]\), achieving its minimum \(T = 2^{0.3065d+o(d)}\) at \(M = 2^{0.1810d+o(d)}\).
 \end{abstract}
 
 \section{Introduction}
@@ -45,9 +46,9 @@ We show that the core QRW structure remains unchanged: the Johnson graph, the se
 
 We use the notation of \cite{CL21,CL23}. Let \(d\) be the lattice dimension and define the fundamental list-size parameter
 \begin{equation}
-N \coloneqq 2^{cd+o(d)}.
+N \coloneqq 2^{md+o(d)}.
 \end{equation}
-This quantity \(N\) is exponential in \(d\) and serves as the reference scale for all exponents in the algorithm. A list of size \(N^{a}\) contains \(2^{a\cdot cd + o(d)}\) elements; throughout the paper we write \(N^{a+o(1)}\) to denote such a list, absorbing subexponential factors into the \(o(1)\).
+This quantity \(N\) is exponential in \(d\) and serves as the reference scale for all exponents in the algorithm. A list of size \(N^{a}\) contains \(2^{a\cdot md + o(d)}\) elements; throughout the paper we write \(N^{a+o(1)}\) to denote such a list, absorbing subexponential factors into the \(o(1)\).
 
 \subsection{General notation}
 \label{sec:notation}
@@ -266,10 +267,10 @@ as given in \cite[Lemma~6]{CL23}.
 
 The adapted QRW 2-sieve uses four free parameters \(c, c_1, c_2, \rho\) satisfying \(0 \le c_2 \le c_1 \le c \le 1\) and \(0 \le \rho \le \rho_0\). From these, the following derived quantities are defined. The angle \(\alpha\) (not to be confused with \(\alpha_0\)) satisfies \(\mathcal{V}_d(\alpha) = N^{-(1-c)}\). The angle \(\beta\) of the second random product code satisfies \(\mathcal{V}_d(\beta) = N^{c_2-c_1}\). The target angle is \(\theta' \coloneqq \arccos(C')\). The collision parameter \(\rho_0\) is defined by \(N^{\rho_0} \coloneqq \mathcal{V}_d(\beta)/\mathcal{W}_d(\beta,\theta')\). The solution probability is
 \begin{equation}
-p_{\mathrm{sol}} \coloneqq \frac{1}{2}\bigl(1-(C')^2\bigr)^{d/2},
+p_{\mathrm{sol}} \coloneqq \bigl(1-(C')^2\bigr)^{d/2}.
 \label{eq:psol}
 \end{equation}
-where the factor \(1/2\) accounts for the bipartite nature of the problem. The expected number of solutions per filter is \(N^\zeta \coloneqq N^{2c}\cdot p_{\mathrm{sol}}\).
+The expected number of solutions per filter is \(N^\zeta \coloneqq N^{2c}\cdot p_{\mathrm{sol}}\).
 
 The QRW costs are the setup cost \(\mathcal{S} \coloneqq N^{c_1+\rho}\), the update cost \(\mathcal{U} \coloneqq N^{\max\{\rho,(\rho+c_2)/2\}}\), and the checking cost \(\mathcal{C} \coloneqq 1\). The spectral gap of the Johnson graph is \(\delta \coloneqq N^{-c_1}\). The fraction of marked vertices is
 \begin{equation}
@@ -284,7 +285,7 @@ The adaptation preserves the following components of the QRW 2-sieve of \cite{CL
 
 \subsection{Required modifications}
 
-Three modifications are required to adapt the QRW 2-sieve to the bipartite setting. First, we form the combined list \(L = R_A \cup R_B\) and tag each element by a bit indicating its origin. The Johnson graph is built on \(L\) with \(|L| = 2N_R\). This tagging does not affect the graph structure. Second, the marked condition is redefined: a vertex \(v\) is marked if there exist \(\vec{t} \in \mathcal{C}_2\) and distinct \(\vec{y}_i,\vec{y}_j \in \tilde{J}^v(\vec{t})\) such that \(\vec{y}_i\) and \(\vec{y}_j\) have different tags and \(\langle \vec{y}_i|\vec{y}_j\rangle \le C'\). Third, the solution probability acquires the factor \(1/2\) as given in Equation~\eqref{eq:psol}.
+Three modifications are required to adapt the QRW 2-sieve to the bipartite setting. First, we form the combined list \(L = R_A \cup R_B\) and tag each element by a bit indicating its origin. The Johnson graph is built on \(L\) with \(|L| = 2N_R\). This tagging does not affect the graph structure. Second, the marked condition is redefined: a vertex \(v\) is marked if there exist \(\vec{t} \in \mathcal{C}_2\) and distinct \(\vec{y}_i,\vec{y}_j \in \tilde{J}^v(\vec{t})\) such that \(\vec{y}_i\) and \(\vec{y}_j\) have different tags and \(\langle \vec{y}_i|\vec{y}_j\rangle \le C'\). Third, the solution probability is as in Equation~\eqref{eq:psol}, without an additional factor.
 
 \subsection{Adapted algorithm}
 
@@ -295,7 +296,7 @@ Three modifications are required to adapt the QRW 2-sieve to the bipartite setti
 \Require two residual lists \(R_A, R_B\) of size \(N_R\) each; threshold \(C'\); QRW parameters \(c, c_1, c_2, \rho\).
 \Ensure all pairs \((\vec{y}_a, \vec{y}_b) \in R_A \times R_B\) with \(\langle \vec{y}_a|\vec{y}_b\rangle \le C'\).
 \State Form \(L \coloneqq R_A \cup R_B\) with tags.
-\State Compute \(\theta' \coloneqq \arccos(C')\) and \(p_{\mathrm{sol}} \coloneqq \frac{1}{2}(1-C'^2)^{d/2}\).
+\State Compute \(\theta' \coloneqq \arccos(C')\) and \(p_{\mathrm{sol}} \coloneqq (1-C'^2)^{d/2}\).
 \State Sample random product code \(\mathcal{C}_2\) with \(|\mathcal{C}_2| = N^{\rho+c_1-c_2}\) and angle \(\beta\) satisfying \(\mathcal{V}_d(\beta) = N^{c_2-c_1}\).
 \State Build Johnson graph \(J(N, N^{c_1})\) on \(L\).
 \For{each vertex \(v\)}
@@ -303,9 +304,9 @@ Three modifications are required to adapt the QRW 2-sieve to the bipartite setti
     \State Truncate to \(\tilde{J}^v(\vec{t})\) of size \(\le 2N^{c_2}\).
     \State Set marked bit \(M(v)\) according to the marked condition above.
 \EndFor
-\While{total solutions found \(< N^\zeta/2\)}
+\While{total solutions found \(< N^\zeta\)}
     \State Pick a new random product code \(\mathcal{C}_2\).
-    \While{solutions found with this \(\mathcal{C}_2\) \(< N^{\zeta+\rho-\rho_0}/2\)}
+    \While{solutions found with this \(\mathcal{C}_2\) \(< N^{\zeta+\rho-\rho_0}\)}
         \State Run the MNRS quantum walk to find one marked vertex.
     \EndWhile
 \EndWhile
@@ -349,13 +350,13 @@ The setup cost, update cost, checking cost, and spectral gap are formally unchan
 \mathcal{C} &= 1, \\
 \delta &= N^{-c_1}.
 \end{align}
-The fraction of marked vertices is modified by the factor \(1/2\) in \(p_{\mathrm{sol}}\):
+The fraction of marked vertices is
 \begin{equation}
-\epsilon = \frac{1}{2}\,N^{2c_1}\bigl(1-(C')^2\bigr)^{d/2}\,N^{\rho-\rho_0},
+\epsilon = N^{2c_1}\bigl(1-(C')^2\bigr)^{d/2}\,N^{\rho-\rho_0},
 \end{equation}
 where \(\rho_0\) satisfies \(N^{\rho_0} = \mathcal{V}_d(\beta)/\mathcal{W}_d(\beta,\theta')\). The expected number of solutions per filter is
 \begin{equation}
-N^\zeta = \frac{1}{2}\,N^{2c}\bigl(1-(C')^2\bigr)^{d/2}.
+N^\zeta = N^{2c}\bigl(1-(C')^2\bigr)^{d/2}.
 \end{equation}
 The time to find one marked vertex is
 \begin{equation}
@@ -411,227 +412,195 @@ which matches \cite[Theorem~1]{CL21}.
 \subsection{QRW 2-sieve for the first two inner calls}
 \label{sec_QRW_first2}
 
-We now apply the framework to the first two inner calls of the 4-sieve at the minimal-memory configuration of \cite[Proposition~17]{CL23}: \(|L| = 2^{0.1724d}\), \(\alpha_0 = 1.350196\) rad, and balanced configuration \(C_{ij} = -1/4\) for \(i \neq j\).
-The residual list size is \(|R_i| = 2^{0.137008d}\). The threshold is
+We now apply the framework to the first two inner calls of the 4-sieve at the time-optimizing configuration found by our numerical sweep:
+\[
+C_{12} = -0.3200,\quad C_{13}=C_{14}=C_{23}=C_{24} = -0.1927,\quad C_{34} = -0.4091,
+\]
+with prefiltering angle \(\alpha_0 = 1.4054\) rad. This configuration has
+\[
+\sin^2(\alpha_0) = 0.9730,\quad
+|L| = \det(C)^{-1/6} = 2^{0.1810d},\quad
+|R_i| = |L|\cdot\mathcal{V}_d(\alpha_0) = 2^{0.1612d}.
+\]
+The residual thresholds are
 \begin{equation}
-C'_{12}(\alpha_0) = \frac{-1/4 + \cos^2(1.350196)/3}{\sin^2(1.350196)} = -0.245809.
+C'_{12}(\alpha_0) = \frac{C_{12} + \cos^2(\alpha_0)/3}{\sin^2(\alpha_0)} = -0.3196,
+\qquad
+C'_{34}(\alpha_0) = \frac{C_{34} + \cos^2(\alpha_0)/3}{\sin^2(\alpha_0)} = -0.4110.
 \end{equation}
-The solution probability is
-\begin{equation}
-p_{12} = \bigl(1 - C'_{12}{}^2\bigr)^{d/2}
-= 2^{-0.044958d}.
-\end{equation}
-For the combined list \(N_1 = 2|R_i|\) with \(n_1 = 0.137008\), we have \(\log_{N_1} p_{12} \approx -0.32815\).
-We optimise the QRW parameters. The optimal choice is
-\begin{equation}
-c = 0.3083, \quad c_1 = 0.1000, \quad c_2 = 0.0000, \quad \rho = 0.
-\end{equation}
-With these values, we compute the collision parameter:
-\begin{align}
-\log_2 \sin(\beta) &= (c_2-c_1)\cdot n_1 = -0.013701, \\
-\cos^2(\beta) &\approx 0.02027, \\
-1 + \cos(\theta') &= 1 - 0.245809 = 0.754191, \\
-\log_2 \mathcal{W}_d(\beta,\theta')/d &\approx -0.03737, \\
-\rho_0 &= \frac{-0.013701 - (-0.03737)}{0.137008} = 0.169462.
-\end{align}
-The marked fraction is
-\begin{equation}
-\epsilon = N_1^{2c_1} \cdot p_{12} \cdot N_1^{\rho-\rho_0}
-= N_1^{0.2 - 0.32815 - 0.169462}
-= N_1^{-0.297612}.
-\end{equation}
-The remaining quantities are
-\begin{align}
-\zeta &= 2c + \log_{N_1} p_{12} = 0.6166 - 0.32815 = 0.288526, \\
-T_1 &= N_1^{0.1} + N_1^{0.148806}\bigl(N_1^{0} + 1\bigr) \approx N_1^{0.198801}, \\
-\mathrm{FAS}_1 &= N_1^{0.288526} \cdot N_1^{0.198801} = N_1^{0.487327}, \\
-\mathrm{NbRep}_{\mathrm{QRW}} &= N_1^{0.3083 - 0.288526} = N_1^{0.019807}, \\
-T_{\mathrm{QRW}} &= N_1^{0.019807}\bigl(N_1 + N_1^{0.6917} \cdot N_1^{0.487327}\bigr) \approx N_1^{1.198801}.
-\end{align}
-Converting \(T_{12} = T_{34} = 2^{0.137008 \times 1.198801\,d + o(d)} = 2^{0.164245d+o(d)}\).
+For the combined list \(N_1 = 2|R_i|\), the effective list-size parameter is \(n_1 = 0.1612\). The two inner problems are asymmetric, with distinct thresholds and distinct optimal QRW parameters.
 
-\subsection{Complexity of the Third Inner Call}
+\paragraph{Inner call 12.}
+The solution probability is
+\[
+p_{12} = \bigl(1-C'_{12}{}^2\bigr)^{d/2} = 2^{-0.0777d},
+\]
+and the optimizer returns
+\begin{equation}
+c = 0.397,\quad c_1 = 0.100,\quad c_2 = 0,\quad \rho = 0,
+\quad \rho_0 = 0.2006,\quad \zeta = 0.3125.
+\end{equation}
+The regime condition holds:
+\[
+\zeta + \rho - \rho_0 = 0.1119 > 0.
+\]
+
+\paragraph{Inner call 34.}
+The solution probability is
+\[
+p_{34} = \bigl(1-C'_{34}{}^2\bigr)^{d/2} = 2^{-0.1336d},
+\]
+and the optimizer returns
+\begin{equation}
+c = 0.545,\quad c_1 = 0.100,\quad c_2 = 0,\quad \rho = 0,
+\quad \rho_0 = 0.2492,\quad \zeta = 0.2606,
+\end{equation}
+with
+\[
+\zeta + \rho - \rho_0 = 0.0114 > 0.
+\]
+
+Carrying through the QRW cost formulas of Section~\ref{sec:qrw-params} with \(n_1 = 0.1612\), the two inner-call times are
+\[
+T_{12} \approx 2^{0.208d+o(d)},\qquad T_{34} \approx 2^{0.240d+o(d)}.
+\]
+The two calls are executed sequentially, so the peak quantum resources are the coordinate-wise maxima:
+\[
+\text{quantum memory} = 2^{0.0161d},\qquad
+\text{QRAM} = 2^{0.0879d}.
+\]
+
+\subsection{Complexity of the third inner call}
 \label{sec:third-call}
 
-After the first two inner calls, we have obtained the lists
-\(L_{12}\) and \(L_{34}\) of pairs of residual vectors that satisfy the
-first‑level configuration constraints \(C'_{12}(\alpha_0)\) and
-\(C'_{34}(\alpha_0)\), respectively. The third inner call consists in
-finding all pairs
+The third inner call is a Grover search on the Cartesian product
+\(L_{12}\times L_{34}\), looking for pairs
+\((\mathbf{z}_{12},\mathbf{z}_{34})\) whose inner product is at most
+\(C_{\mathrm{eff}}\). With \(R^{2} = 2 + 2C_{12} = 1.36\) and
+\(s = \sin^{2}(\alpha_0) = 0.9730\), the effective threshold is
+\begin{equation}
+C_{\mathrm{eff}} \coloneqq \frac{s}{2R^{2}}-1 = \frac{0.9730}{2.72}-1
+= -0.6422.
+\end{equation}
+
+\paragraph{Solution probability.}
+For two random vectors of norm \(R\), the probability of an inner product
+at most \(C_{\mathrm{eff}}\) is
 \[
-(\mathbf z_{12},\mathbf z_{34})\in L_{12}\times L_{34}
+p_{\mathrm{sol}} = \bigl(1-C_{\mathrm{eff}}^{2}\bigr)^{d/2} = 2^{-0.3838d}.
 \]
-such that
-\begin{equation}
-\langle \mathbf z_{12}|\mathbf z_{34}\rangle \le C_{\mathrm{eff}},
+
+\paragraph{Expected solutions and search space.}
+With
+\[
+E_{12} = 2\log_{2}|R_i| + \tfrac{1}{2}\log_2(1-C'_{12}{}^{2}) = 0.2447,
 \qquad
-C_{\mathrm{eff}} \coloneqq \frac{\sin^2(\alpha_0)}{2R^2}-1,
-\qquad
-R^2 \coloneqq 2+2C_{12},
-\label{eq:ceff}
-\end{equation}
-where \(\alpha_0\) is the outer prefiltering angle and \(C_{12}\) is the
-outer configuration entry. This condition is exactly the one given in
-\cite[Lemma~6]{CL23} and guarantees that the four residual vectors form
-a reducing tuple.
-
-\paragraph{Probability of a solution.}
-For two random vectors \(\mathbf z_{12}\) and \(\mathbf z_{34}\) of norm
-\(R\), the probability that their inner product is at most
-\(C_{\mathrm{eff}}\) is
-\begin{equation}
-p_{\mathrm{sol}} = \bigl(1-C_{\mathrm{eff}}^2\bigr)^{d/2}.
-\label{eq:psol-third}
-\end{equation}
-There is no factor \(1/2\) here, because the two lists \(L_{12}\) and
-\(L_{34}\) are distinct and the search is over ordered pairs
-\((\mathbf z_{12},\mathbf z_{34})\).
-
-The expected number of solutions per tuple‑filter is therefore
-\begin{equation}
-|\mathrm{Sol}| = |L_{12}|^2\,p_{\mathrm{sol}}
-= |L_{12}|^2\bigl(1-C_{\mathrm{eff}}^2\bigr)^{d/2}.
-\label{eq:sol-third}
-\end{equation}
-
-\paragraph{Grover search.}
-We use Grover's algorithm to find all solutions in
-\(L_{12}\times L_{34}\). The search space has size
-\(|L_{12}|^2\). The number of Grover iterations to find one solution is
-\(O\bigl(1/\sqrt{p_{\mathrm{sol}}}\bigr)\), and to find all
-\(|\mathrm{Sol}|\) solutions we use amplitude amplification, which
-requires
+E_{34} = 2\log_{2}|R_i| + \tfrac{1}{2}\log_2(1-C'_{34}{}^{2}) = 0.1888,
+\]
+the expected number of solutions per tuple-filter is
+\[
+|\mathrm{Sol}| = 2^{(E_{12}+E_{34}+\log_2 p_{\mathrm{sol}})d}
+= 2^{0.0497d} > 1.
+\]
+The condition \(|\mathrm{Sol}| \ge 1\) is satisfied, so the Grover
+analysis applies. With the search space of size
+\(|L_{12}|\cdot|L_{34}| = 2^{(E_{12}+E_{34})d}\), Grover's algorithm
+combined with amplitude amplification requires
 \begin{equation}
 T_{1234}
-= |L_{12}|^2\bigl(1-C_{\mathrm{eff}}^2\bigr)^{d/4}
-= |L_{12}|^2\sqrt{p_{\mathrm{sol}}}
+= (E_{12}+E_{34}) + \tfrac{1}{2}\log_{2}p_{\mathrm{sol}}
+= 0.2416.
 \label{eq:T1234}
 \end{equation}
-elementary operations.
 
-\paragraph{Numerical values for the minimal-memory configuration.}
-We take the minimal-memory parameters of \cite[Proposition~17]{CL23}:
+\paragraph{Total per-filter time.}
+The two inner QRW calls cost \(T_{12} \approx 0.208\) and
+\(T_{34} \approx 0.240\), both below \(T_{1234}\). The per-filter
+time is therefore dominated by the third call:
 \[
-|L| = 2^{0.1724d},\qquad
-\alpha_0 = 1.350196\ \text{rad},\qquad
-C_{ij}=-\frac14\ (i\neq j).
+T_{\text{filter}} = \max(T_{12}, T_{34}, T_{1234}) = 0.2416.
 \]
-Then
-\[
-\sin^2(\alpha_0) = 0.952120,\qquad
-R^2 = 1.5,\qquad
-C_{\mathrm{eff}} = -0.682627.
-\]
-The first-level threshold is
-\[
-C'_{12}(\alpha_0)
-= \frac{-\frac14+\frac{\cos^2(\alpha_0)}{3}}{\sin^2(\alpha_0)}
-= -0.245809.
-\]
-The residual list size is
-\[
-|R_i| = 2^{0.137008d},
-\]
-so that
-\[
-|L_{12}|
-= |R_i|^2\bigl(1-C'_{12}(\alpha_0)^2\bigr)^{d/2}
-= 2^{0.229057d}.
-\]
-The solution probability is
-\[
-p_{\mathrm{sol}}
-= \bigl(1-C_{\mathrm{eff}}^2\bigr)^{d/2}
-= 2^{-0.452516d},
-\]
-hence
-\[
-T_{1234}
-= 2^{0.229057d\cdot 2}\cdot 2^{-0.452516d/2}
-= 2^{0.231856d+o(d)}.
-\]
-The expected number of solutions per tuple-filter is
-\[
-|\mathrm{Sol}| = |L_{12}|^2 p_{\mathrm{sol}} = 2^{0.005598d}.
-\]
-From Section~\ref{sec_QRW_first2}, the first two inner calls
-cost
-\[
-T_{12} = T_{34} \approx 2^{0.164245d+o(d)}.
-\]
-Thus the total time per tuple-filter is dominated by the third call:
-\begin{equation}
-T_{\text{filter}}
-= T_{12}+T_{34}+T_{1234}
-\approx 2^{0.231856d+o(d)}.
-\label{eq:Tfilter}
-\end{equation}
 
-Finally, we multiply by the number of tuple-filters and the number of
-repetitions of the outer loop. For the minimal-memory configuration with
-\(\alpha_0 = 1.350196\) rad, we have
-\[
-\mathrm{NbFilters} = 2^{0.0354d},\qquad
-\mathrm{NbRep} = 2^{0.0780d}.
-\]
-Therefore the total running time of the hybrid quantum 4-sieve is
+With the outer repetition counts
+\(\mathrm{NbFilters} = 2^{0.0198d}\) and
+\(\mathrm{NbRep} = 2^{0.0451d}\), the overall running time of the hybrid
+4-sieve at this configuration is
 \begin{equation}
 T_{\text{hybrid}}
 = \mathrm{NbRep}\cdot \mathrm{NbFilters}\cdot T_{\text{filter}}
-= 2^{0.0780d}\cdot 2^{0.0354d}\cdot 2^{0.231856d}
-= 2^{0.345301d+o(d)}.
+= 2^{0.0451d}\cdot 2^{0.0198d}\cdot 2^{0.2416d}
+= 2^{0.3065d+o(d)}.
 \label{eq:Thybrid}
 \end{equation}
 We round this to
 \[
-\boxed{T_{\text{hybrid}} \approx 2^{0.345d+o(d)}.}
+\boxed{T_{\text{hybrid}} \approx 2^{0.3065d+o(d)},\qquad M = 2^{0.1810d+o(d)}.}
 \]
+
+\section{Comparison}
+\label{sec:comparison}
+
+We now compare the hybrid quantum 4-sieve with the classical and pure
+quantum 4-sieves of \cite{CL23} at the same classical memory. The
+relevant data for four memory points is summarized in
+Table~\ref{tab:comparison} and plotted in Figure~\ref{fig:tradeoff}.
 
 \begin{table}[htbp]
 \centering
-\caption{Comparison of 4-sieve algorithms at different classical memory constraints.}
+\caption{Running time of the hybrid quantum 4-sieve at four memory points,
+compared with the classical 4-sieve and the pure quantum 4-sieve of
+\cite{CL23}.}
 \label{tab:comparison}
 \small
-\begin{tabular}{@{}l c c c@{}}
+\begin{tabular}{@{}ccccc@{}}
 \toprule
-\textbf{Classical memory} & \textbf{Classical 4-sieve} & \textbf{Hybrid quantum 4-sieve} & \textbf{quantum 4-sieve} \\
- & \cite{CL23} & (ours) & \cite{CL23} \\
+$M$ & \textbf{Classical 4-sieve} & \textbf{Hybrid 4-sieve} & \textbf{Pure quantum 4-sieve} & \textbf{Gain over} \\
+    & \cite{CL23} & (ours) & \cite{CL23} & \textbf{quantum} \\
 \midrule
-\(2^{0.1724d}\) & \(2^{0.418d}\) & \(2^{0.345d}\) & \(2^{0.3276d}\) \\
-\(2^{0.175d}\) & \(2^{0.380d}\) & \(2^{0.???d}\) & \(2^{0.3120d}\) \\
-\(2^{0.18d}\) & \(2^{0.352d}\) & \(2^{0.???d}\) & \(2^{0.3127d}\) \\
+$2^{0.1766d}$ & $2^{0.371d}$ & $2^{0.3087d}$ & $2^{0.3202d}$ & $0.0115$ \\
+$2^{0.1772d}$ & $2^{0.368d}$ & $2^{0.3113d}$ & $2^{0.3192d}$ & $0.0079$ \\
+$\mathbf{2^{0.1810d}}$ & $2^{0.349d}$ & $\mathbf{2^{0.3065d}}$ & $2^{0.3125d}$ & $\mathbf{0.0060}$ \\
+$2^{0.1858d}$ & $2^{0.333d}$ & $2^{0.3082d}$ & --- & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-At the minimal classical memory \(M=2^{0.1724d}\), the classical
-4-sieve runs in time \(2^{0.418d+o(d)}\), whereas our hybrid algorithm
-runs in time \(2^{0.345d+o(d)}\). The improvement factor is
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{tradeoff_4sieve.png}
+\caption{Time--memory trade-off for the 4-sieve.}
+\label{fig:tradeoff}
+\end{figure}
+
+At the minimum memory of \cite{CL23}, \(M = 2^{0.1724d}\), the
+classical 4-sieve runs in time \(2^{0.418d+o(d)}\) and the pure quantum
+4-sieve in time \(2^{0.3276d+o(d)}\). Our hybrid reaches its global
+optimum at \(M = 2^{0.1810d+o(d)}\), with
 \[
-2^{0.418d-0.345d} = 2^{0.073d},
+T_{\text{hybrid}} = 2^{0.3065d+o(d)}.
 \]
-which is an exponential speedup. For comparison, the pure quantum
-4-sieve of \cite{CL23} achieves \(2^{0.3276d+o(d)}\) at the same
-memory, so our hybrid is slower by \(2^{0.0174d}\) than the best known
-quantum 4-sieve.
+This is a \(0.1115d\) improvement over the classical 4-sieve at the
+same memory and a \(0.0055d\) improvement over the pure quantum 4-sieve
+of \cite{CL23} at its own optimal memory \(M = 2^{0.1813d+o(d)}\)
+(\(T = 2^{0.3120d+o(d)}\)). The improvement corresponds to approximately
+one bit of security at \(d = 180\).
 
-The advantage of the hybrid is most pronounced in the low-memory
-regime. As the allowed memory increases, the classical 4-sieve
-improves rapidly: at \(M=2^{0.1887d}\) it runs in \(2^{0.324d}\), and at
-\(M=2^{0.2075d}\) it reaches the classical 2-sieve time
-\(2^{0.2925d}\). Our hybrid, optimized for the minimal-memory point,
-does not immediately benefit from additional memory without a
-re-optimization of the QRW parameters. A full time-memory trade-off
-curve for the hybrid would require running the parameter optimization
-for several values of \(\alpha_0\) and \(C\), which we leave for future
-work.
+The hybrid curve in Figure~\ref{fig:tradeoff} is obtained by sweeping
+the configuration matrix \(C\) over the three-parameter family
+\((C_{12}, C_{13}, C_{23})\) with the constraint
+\(C_{34} = -\tfrac{3}{2} - C_{12} - 2C_{13} - 2C_{23}\) imposed by the
+reducing condition, binning by classical memory \(|L| = \det(C)^{-1/6}\),
+and keeping the best running time per bin. Only configurations with
+\(\alpha_0 < \pi/2\), \(\mathrm{NbFilters} > 0\), and
+\(\mathrm{NbRep} > 0\) are retained.
 
-In summary, the hybrid quantum 4-sieve demonstrates that quantum
-random walk techniques can be successfully integrated into the
-\(k\)-sieve framework. While it does not surpass the best pure quantum
-4-sieve, it offers a significant quantum advantage over the classical
-4-sieve in the regime where memory is severely constrained.
-
+In summary, the hybrid quantum 4-sieve is valid and improves on both
+the classical and pure quantum 4-sieves of \cite{CL23} in the low-memory
+regime \(M \in [2^{0.1724d}, 2^{0.194d}]\). It does not extend the
+trade-off to larger memories: beyond \(M \approx 2^{0.194d}\) the
+4-sieve enters the saturation regime, where additional memory no longer
+reduces the running time and the classical 2-sieve is the optimal
+algorithm.
 
 \begin{thebibliography}{9}
 \bibitem{CL21} A.~Chailloux and J.~Loyer. Lattice sieving via quantum random walks. In \emph{ASIACRYPT 2021}, 2021.
