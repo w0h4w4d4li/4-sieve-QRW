@@ -179,7 +179,7 @@ In particular,
 
 The general framework for \(k\)-sieve algorithms, introduced in \cite{CL23}, proceeds in three steps: prefilter the list vectors, search all reduced tuples within each filter, and repeat until all reduced points are found. The algorithm takes as input an angle \(\alpha\) and a configuration \(C\in\mathbb{R}^{k\times k}\) that defines constraints over the lattice vectors. From \(\alpha\) and \(C\), one computes the configuration \(C'(\alpha)\) over the residual vectors on filters of angle \(\alpha\) using the transformation
 \begin{equation}
-C'_{i,j}(\alpha) = -\frac{1}{\sin^2(\alpha)}\left(C_{i,j}+\frac{\cos^2(\alpha)}{k-1}\right) \quad (i\neq j).
+C'_{i,j}(\alpha) = \frac{1}{\sin^2(\alpha)}\left(C_{i,j}+\frac{\cos^2(\alpha)}{k-1}\right) \quad (i\neq j).
 \label{eq:config-transform}
 \end{equation}
 From \(C\), the minimum memory requirement is \(|L|=\tilde{\mathcal{O}}(\det(C)^{-\frac{1}{2(k-1)}})\), as in Equation~\eqref{eq:list-size}.
@@ -574,16 +574,14 @@ $2^{0.1858d}$ & $2^{0.333d}$ & $2^{0.3082d}$ & --- & --- \\
 
 At the minimum memory of \cite{CL23}, \(M = 2^{0.1724d}\), the
 classical 4-sieve runs in time \(2^{0.418d+o(d)}\) and the pure quantum
-4-sieve in time \(2^{0.3276d+o(d)}\). Our hybrid reaches its global
-optimum at \(M = 2^{0.1810d+o(d)}\), with
+4-sieve in time \(2^{0.3276d+o(d)}\). Our hybrid reaches its best configuration found in our numerical sweep at \(M = 2^{0.1810d+o(d)}\), with
 \[
 T_{\text{hybrid}} = 2^{0.3065d+o(d)}.
 \]
 This is a \(0.1115d\) improvement over the classical 4-sieve at the
 same memory and a \(0.0055d\) improvement over the pure quantum 4-sieve
 of \cite{CL23} at its own optimal memory \(M = 2^{0.1813d+o(d)}\)
-(\(T = 2^{0.3120d+o(d)}\)). The improvement corresponds to approximately
-one bit of security at \(d = 180\).
+(\(T = 2^{0.3120d+o(d)}\)).
 
 The hybrid curve in Figure~\ref{fig:tradeoff} is obtained by sweeping
 the configuration matrix \(C\) over the three-parameter family
